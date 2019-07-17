@@ -1,0 +1,5 @@
+record(asyn, "$(SYSTEM):asyn") {
+  field(DESC, "$(DESC)")
+  field(PORT, "$(terminal)")
+  field(ADDR, "$(ADDR)")
+}

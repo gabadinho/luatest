@@ -1,0 +1,7 @@
+record(waveform,"$(RECORD)") {
+  field(DTYP,"Soft Channel")
+  field(INP,"$(INP)")
+  field(NELM,"$(NELM)")
+  field(FTVL,"$(FTVL)")
+  field(PINI,"YES")
+}

@@ -1,0 +1,27 @@
+record (luasub,"$(RECORD)") {
+  field (DTYP,"lua")
+  field (DESC,"WebSocket Echo")
+  field (INP, "@wsecho.lua")
+
+  field (ICOD,"")
+  field (PCOD,"wsecho_proc")
+
+  #field (INPA,"$(RECORD)-ORIG CP")
+  field (INPA,"$(RECORD)-ORIG")
+  field (FTA, "STRING")
+  field (NOA, "1")
+
+  field (OUTA,"$(RECORD)-ECHO PP")
+  field (FTVA,"STRING")
+  field (NOVA,"1")
+}
+
+record (stringin,"$(RECORD)-ORIG") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Original text")
+}
+
+record (stringout,"$(RECORD)-ECHO") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Echoed text")
+}

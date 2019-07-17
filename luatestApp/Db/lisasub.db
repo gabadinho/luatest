@@ -1,0 +1,45 @@
+record(waveform,"$(P)-WF"){
+  field(DTYP,"Soft Channel")
+  field(NELM,"10")
+  field(FTVL,"LONG")
+}
+
+record(waveform,"LUA:WF1") {
+  field(DTYP,"Soft Channel")
+  field(NELM,"20")
+  field(FTVL,"USHORT")
+}
+
+record(ai,"$(P)-AI1") {
+  field(DTYP,"Soft Channel")
+  field(DESC,"LIS AI")
+  field(PREC,"2")
+}
+
+record(luasub,"$(P)"){
+  field(DTYP,"lua")
+  field(DESC,"LIS ASUB")
+  field(INP,"$(I)")
+  field(ICOD,"$(IN)")
+  field(PCOD,"$(SN)")
+
+  field (INPA, "$(P)-WF")
+  field (FTA, "LONG")
+  field (NOA, "10")
+
+  field (INPB, "-111")
+  field (FTB, "SHORT")
+  field (NOB, "1")
+
+  field (OUTA, "LUA:WF1")
+  field (FTVA, "USHORT")
+  field (NOVA, "20")
+
+  field (OUTB, "-10")
+  field (FTVB, "SHORT")
+  field (NOVB, "1")
+
+  field (OUTC, "$(P)-AI1")
+  field (FTVC, "DOUBLE")
+  field (NOVC, "1")
+}

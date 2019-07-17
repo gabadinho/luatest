@@ -1,0 +1,31 @@
+file SMARACTMCSBASE.template {
+  {
+    SYSTEM=SMARACT1
+    name="Smaract test"
+    terminal=MCS1
+  }
+}
+
+file SMARACTMCSnV2.template {
+  pattern { BSYSTEM      SYSTEM           name           terminal  chan  chanp1  motor         hlm llm,  egu   slope     prec  hold    freq   sensor type   udsens  uperrot  vamp  adel   dir  CHAN_SCAN}
+          { SMARACT1     SMARACT1:MOT1    "Motor-1"      MCS1      0     1       smaract.cfg,  4   -4    mm    0.000001  6     60000   5000   21      1     0       360      2000  0.001  0    ".1"      }
+          { SMARACT1     SMARACT1:MOT2    "Motor-2"      MCS1      1     2       smaract.cfg,  10  -10   mm    0.000001  6     60000   5000   21      1     0       360      2000  0.001  0    ".2"      }
+}         
+
+file luamothome.db {
+  {
+    RECORD=SMARACT1:MOT1
+
+    LLM-CH  = SMARACT1:MOT1:LLM
+    HLM-CH  = SMARACT1:MOT1:HLM
+    LLM-VAL = -99
+    HLM-VAL = 99
+
+    GOTO-CH  = SMARACT1:MOT1:DRIVE
+    GOTO-VAL = 99
+
+    DMOV-CH = SMARACT1:MOT1:DMOV
+
+    HOME-CH = SMARACT1:MOT1:FRM_BACK.PROC
+  }
+}

@@ -1,0 +1,4 @@
+record(stringout,"$(RECORD)") {
+  field(DTYP,"$(DTYP)")
+  field(OUT,"$(OUT)")
+}

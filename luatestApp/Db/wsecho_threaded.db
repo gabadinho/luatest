@@ -1,0 +1,12 @@
+record (stringout,"$(RECORD)-ORIG") {
+  field (DTYP,"lua")
+  field (DESC,"Original text")
+  field (OUT,"@wsecho_threaded.lua @table=strout")
+}
+
+record (stringin,"$(RECORD)-ECHO") {
+  field (DTYP,"lua")
+  field (DESC,"Echoed text")
+  field (INP, "@wsecho_threaded.lua @table=strin")
+  field (SCAN,"I/O Intr")
+}

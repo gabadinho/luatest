@@ -1,0 +1,744 @@
+#Channel template for Smaract MCS controller
+#In this version (2) the ability to switch between POS, ANG and NONE stages at run time has been added
+#----------------------------------------------------------------------------------
+#sss
+#------ S E T U P   T H E   C A R D --------------
+
+record(seq,"$(SYSTEM):INIT_AUTO"){
+
+        field(DOL1,"1")
+        field(DLY1,"1.6")
+        field(LNK1,"$(SYSTEM):SET_SENSOR_TYPE.PROC")         #Read ID
+
+        field(DOL2,"1")
+        field(DLY2,"2.0")
+        field(LNK2,"$(SYSTEM):CL_MAX_FREQ.PROC")   #Read the firmware
+
+        field(DOL3,"1")
+        field(DLY3,"2.0")
+        field(LNK3,"$(SYSTEM):DIR.PROC")   #Set direction
+
+        field(PINI,"YES")
+	field(SCAN, "Passive")
+}
+
+
+record(stringout, "$(SYSTEM):NAME"){
+  field(DESC, "$(type): 1=P;2=A;3=N")
+  field(VAL,  "$(name)") 
+}
+
+record(mbbo, "$(SYSTEM):STAGE_TYPE"){ #store the type
+  field(DESC, "Stage type 1=P;2=A;3=N")
+  field(SCAN, "Passive")
+  field(VAL,  "$(type)") #load in from file - but can overwrite from save restore
+  field(NOBT, "4")
+  field(ZRVL, "0")
+  field(ONVL, "1")
+  field(TWVL, "2")
+  field(THVL, "3")
+  field(ZRST, "DISABLE")	#zero is not used - so it could be used to disable the motor	
+  field(ONST, "POS")
+  field(TWST, "ANG")
+  field(THST, "NONE")
+}
+
+
+record(ao, "$(SYSTEM):SET_ACC"){		#Closed loop acceleration
+  field(DESC, "Set acceleration")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) set_accn($(chan),$(BSYSTEM)) $(terminal)") #cfg/file command port
+  field(FLNK, "$(SYSTEM):GET_ACC")
+}
+#	||
+#	\/
+record(ai,"$(SYSTEM):GET_ACC") {
+  field(DESC, "Get Acceleration")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(INP,  "@$(motor) get_accn($(chan)) $(terminal)") 
+}
+#----------------------------------------------------------------------------
+record(ao, "$(SYSTEM):SET_VEL"){
+  field(DESC, "Set velocity")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) set_veln($(chan),$(BSYSTEM)) $(terminal)") #cfg/file command port
+  field(FLNK, "$(SYSTEM):GET_VEL")
+}
+#	||
+#	\/
+record(ai,"$(SYSTEM):GET_VEL") {
+  field(DESC, "Get velocity")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(INP,  "@$(motor) get_veln($(chan)) $(terminal)") 
+}
+#----------------------------------------------------------------------------
+
+#set sensor type
+record(mbbo, "$(SYSTEM):SET_SENSOR_TYPE"){
+  field(DESC, "set sensor type")
+  field(DTYP, "stream")
+  field(SCAN, "Passive")
+  field(OUT,  "@$(motor) set_gstn($(chan),$(BSYSTEM)) $(terminal)")
+  field(NOBT, "12")
+  field(ZRVL, "1")
+  field(ONVL, "2")
+  field(TWVL, "5")
+  field(THVL, "6")
+  field(FRVL, "8")
+  field(FVVL, "9")
+  field(SXVL, "21")
+  field(SVVL, "23")
+  field(EIVL, "32")
+  field(NIVL, "18")
+  field(TEVL, "$(udsens)")
+  field(ELVL, "1")
+  field(ZRST, "S")
+  field(ONST, "SR")
+  field(TWST, "SP")
+  field(THST, "SC")
+  field(FRST, "SR20")
+  field(FVST, "M")
+  field(SXST, "SD")
+  field(SVST, "SR2")
+  field(EIST, "MD")
+  field(NIST, "SC500")
+  field(TEST, "User Def")
+  field(ELST, "None")
+  field(FLNK, "$(SYSTEM):GET_SENSOR_TYPE")
+  field(VAL,  "$(sensor)")
+}
+#	||
+#	\/
+#get sensor type
+record(mbbi, "$(SYSTEM):GET_SENSOR_TYPE"){
+  field(DESC, "get sensor type")
+  field(DTYP, "stream")
+  field(SCAN, "Passive")
+  field(INP,  "@$(motor) get_gstn($(chan)) $(terminal)")
+  field(NOBT, "12")
+  field(ZRVL, "1")
+  field(ONVL, "2")
+  field(TWVL, "5")
+  field(THVL, "6")
+  field(FRVL, "8")
+  field(FVVL, "9")
+  field(SXVL, "21")
+  field(SVVL, "23")
+  field(EIVL, "32")
+  field(NIVL, "18")
+  field(TEVL, "$(udsens)")
+  field(ELVL, "1")
+  field(ZRST, "S")
+  field(ONST, "SR")
+  field(TWST, "SP")
+  field(THST, "SC")
+  field(FRST, "SR20")
+  field(FVST, "M")
+  field(SXST, "SD")
+  field(SVST, "SR2")
+  field(EIST, "MD")
+  field(NIST, "SC500")
+  field(TEST, "User Def")
+  field(ELST, "None")
+}
+#----------------------------------------------------------------------------
+record(ao, "$(SYSTEM):CL_MAX_FREQ"){  #Maximum drive frequency: 50 to 18500
+  
+  field(DESC, "Set max drive freq")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) set_clmfn($(chan),$(BSYSTEM)) $(terminal)") 
+  field(VAL,  "$(freq)")
+}
+
+#set drive Frequency
+record(mbbo, "$(SYSTEM):SET_MAX_FREQ"){
+  field(DESC, "set sensor type")
+  field(DTYP, "Soft Channel")
+  field(SCAN, "Passive")
+#  field(OUT,  "$(SYSTEM):CL_MAX_FREQ.VAL PP")
+  field(NOBT, "12")
+  field(ZRVL, "50")
+  field(ONVL, "100")
+  field(TWVL, "200")
+  field(THVL, "500")
+  field(FRVL, "1000")
+  field(FVVL, "2000")
+  field(SXVL, "5000")
+  field(SVVL, "7500")
+  field(EIVL, "10000")
+  field(NIVL, "12500")
+  field(TEVL, "15000")
+  field(ELVL, "18500")
+  field(ZRST, "50 Hz")
+  field(ONST, "100 Hz")
+  field(TWST, "200 Hz")
+  field(THST, "500 Hz")
+  field(FRST, "1000 Hz")
+  field(FVST, "2000 Hz")
+  field(SXST, "5000 Hz")
+  field(SVST, "7500 Hz")
+  field(EIST, "10000 Hz")
+  field(NIST, "12500 Hz")
+  field(TEST, "15000 Hz")
+  field(ELST, "18500 Hz")
+  field(FLNK, "$(SYSTEM):PASS_MFREQ")
+}
+
+record(calcout,"$(SYSTEM):PASS_MFREQ") {         
+  field(DESC, "Move")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):SET_MAX_FREQ.RVAL") #want frequency not the array pointer value
+  field(CALC,  "A")	
+  field(OUT,   "$(SYSTEM):CL_MAX_FREQ PP")
+}
+
+record(ao, "$(SYSTEM):CALIBRATE"){
+  field(DESC, "Stop")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) calibraten($(chan),$(BSYSTEM)) $(terminal)") 
+}
+
+
+#----------------------------------------------------------------------------
+# S T O P    and   G O
+record(ao, "$(SYSTEM):STOP"){
+  field(DESC, "Stop")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) stopn($(chan),$(BSYSTEM)) $(terminal)") 
+}
+
+
+record(ao, "$(SYSTEM):SET_POS"){  #set the counter - doesn't change the actual position
+  field(DESC, "Set val of current pos")
+  field(SCAN, "Passive")
+#  field(FLNK, "$(SYSTEM):SET_$(type)_START1") #
+  field(FLNK, "$(SYSTEM):SET_FANOUT")
+}
+
+record(fanout, "$(SYSTEM):SET_FANOUT"){  #choose the correct record dependent on type of motor attached
+  field(DESC, "Select motor type")
+  field(SCAN, "Passive")
+  field(SELM, "Specified") 
+  field(SELL, "$(SYSTEM):STAGE_TYPE")
+  field(LNK1, "$(SYSTEM):SET_POS_START1") #$(SYSTEM):STAGE_TYPE =1
+  field(LNK2, "$(SYSTEM):SET_ANG_START1") #$(SYSTEM):STAGE_TYPE =2
+  field(LNK3, "$(SYSTEM):SET_NONE_START1") #$(SYSTEM):STAGE_TYPE=3
+}
+#	||		||		||
+#       POS             ANG            NONE
+#	\/		\/		\/
+record(calcout,"$(SYSTEM):SET_POS_START1") {         
+  field(DESC, "Move")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):SET_POS") #want frequency not the array pointer value
+  field(CALC,  "A")	
+  field(OUT,   "$(SYSTEM):SET_POS_ANG_POS PP")
+}
+#			||		
+#			\/		
+record(calcout,"$(SYSTEM):SET_ANG_START1") {         
+  field(DESC, "Move")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):SET_POS") #want frequency not the array pointer value
+  field(CALC,  "A")	
+  field(OUT,   "$(SYSTEM):SET_POS_ANG_POS PP")
+}
+#					||
+#					\/
+record(calcout,"$(SYSTEM):SET_NONE_START1") {         
+  field(DESC, "Move")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):SET_POS") #want frequency not the array pointer value
+  field(CALC,  "A")	
+  field(OUT,   "$(SYSTEM):MOTRBV")
+  field(FLNK, "$(SYSTEM):SET_NONE_START2")
+}
+#					||
+#					\/
+record(calcout,"$(SYSTEM):SET_NONE_START2") {         
+  field(DESC, "Move")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):SET_POS") #want frequency not the array pointer value
+  field(CALC,  "A")	
+  field(OUT,   "$(SYSTEM):LAST_SET")
+
+}
+
+record(ao, "$(SYSTEM):SET_POS_ANG_POS"){  #set the counter - doesn't change the actual position / works for both ANG and POS
+  field(DESC, "Stop")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) set_posn($(chan),$(BSYSTEM)) $(terminal)") 
+  field(LINR, "LINEAR") #SLOPE
+  field(ESLO, "$(slope)")
+  field(EOFF, "0")
+  field(EGU,  "nm")
+  field(PREC, "1")
+#  field(FLNK, "$(SYSTEM):GET_$(type)_START") #
+  field(FLNK, "$(SYSTEM):GET_FANOUT")
+}
+
+
+
+#----------------------------------------------------------------------------
+#STATUS - read the motor status
+#this is read first and then the motor position and then the
+#decision whether to reset the drive value is made
+record(mbbi, "$(SYSTEM):STATUS"){
+  field(DESC, "status")
+  field(DTYP, "stream")
+  field(SCAN, "$(CHAN_SCAN) second")
+  field(INP,  "@$(motor) statusn($(chan)) $(terminal)")
+  field(NOBT, "9")
+  field(ZRVL, "0")
+  field(ONVL, "1")
+  field(TWVL, "2")
+  field(THVL, "3")
+  field(FRVL, "4")
+  field(FVVL, "5")
+  field(SXVL, "6")
+  field(SVVL, "7")
+  field(EIVL, "9")
+  field(ZRST, "Stopped")
+  field(ONST, "Stepping")
+  field(TWST, "Scanning")
+  field(THST, "Holding")
+  field(FRST, "Targeting")
+  field(FVST, "Move Delay")
+  field(SXST, "Calibrating")
+  field(SVST, "Finding Ref")
+  field(EIST, "Locked")
+#  field(FLNK, "$(SYSTEM):GET_POS")
+#  field(FLNK, "$(SYSTEM):GET_$(type)_START")
+  field(FLNK, "$(SYSTEM):GET_FANOUT")
+}
+
+record(fanout, "$(SYSTEM):GET_FANOUT"){  #choose the correct record dependent on type of motor attached
+  field(DESC, "Select motor type")
+  field(SCAN, "Passive")
+  field(SELM, "Specified") 
+  field(SELL, "$(SYSTEM):STAGE_TYPE")
+  field(LNK1, "$(SYSTEM):GET_POS_START") #$(SYSTEM):STAGE_TYPE =1
+  field(LNK2, "$(SYSTEM):GET_ANG_START") #$(SYSTEM):STAGE_TYPE =2
+  field(LNK3, "$(SYSTEM):GET_NONE_START") #$(SYSTEM):STAGE_TYPE=3
+}
+#      C A L L E D    F R O M    S T A T U S (or set_pos)
+#	||		||		||
+#       POS             ANG            NONE
+#	\/		\/		\/
+record(ai,"$(SYSTEM):GET_POS_START") { #read position if linear positional encoder
+  field(DESC, "Get position")
+  field(DTYP, "stream")
+  field(INP,  "@$(motor) curposn($(chan),$(SYSTEM)) $(terminal)") 
+  field(ASLO, "$(slope)")
+  field(LINR, "LINEAR")
+  field(AOFF, "0")
+  field(EGU,  "$(egu)")
+  field(PREC, "$(prec)")
+  field(FLNK, "$(SYSTEM):GET_POS2") #Read status, then pos then RESETDRIVE
+}
+#  ||
+#  \/
+record(calcout,"$(SYSTEM):GET_POS2") {
+  field(DESC, "convert angle")
+  field(INPA,  "$(SYSTEM):GET_POS_START") 	#the angle part    $(type)-->POS
+  field(INPC,  "$(uperrot)") 			#units per rotation
+  field(CALC,  "A")
+  field(EGU,  "$(egu)")
+  field(PREC, "$(prec)")
+  field(OUT,  "$(SYSTEM):GET_POS")
+  field(FLNK, "$(SYSTEM):GET_POS") #Read status, then pos then RESETDRIVE
+}
+#		O R	||
+#			\/
+record(ai,"$(SYSTEM):GET_ANG_START") { #read position if linear positional encoder
+  field(DESC, "Get position")
+  field(DTYP, "stream")
+  field(INP,  "@$(motor) curangn($(chan),$(SYSTEM)) $(terminal)") 
+  field(ASLO, "$(slope)")
+  field(LINR, "LINEAR")
+  field(AOFF, "0")
+  field(EGU,  "$(egu)")
+  field(PREC, "$(prec)")
+  field(FLNK, "$(SYSTEM):GET_ANG2") #Read status, then pos then RESETDRIVE
+}
+record(ao,"$(SYSTEM):CURROT") {	#store current rotation for positional encoders
+  field(DESC, "error number")		
+}
+#			||
+#			\/
+record(calcout,"$(SYSTEM):GET_ANG2") {
+  field(DESC, "convert angle")
+  field(INPA,  "$(SYSTEM):GET_ANG_START") 	#the angle part $(type)-->ANG
+  field(INPB,  "$(SYSTEM):CURROT") 		#the number of rotations
+  field(INPC,  "$(uperrot)") 			#units per rotation
+  field(CALC,  "A+C*B")
+  field(EGU,  "$(egu)")
+  field(PREC, "$(prec)")
+  field(OUT,  "$(SYSTEM):GET_POS")
+  field(FLNK, "$(SYSTEM):GET_POS") #Read status, then pos then RESETDRIVE
+}
+#			O R		||
+#					\/
+record(calcout,"$(SYSTEM):GET_NONE_START") {
+  field(DESC,  "get counts ")
+  field(INPA,  "$(SYSTEM):LAST_SET")	 	#read last set value - there is no encoder to be read
+  field(CALC,  "A")
+  field(EGU,  "$(egu)")
+  field(PREC, "$(prec)")
+  field(OUT,  "$(SYSTEM):GET_POS")
+  field(FLNK, "$(SYSTEM):GET_POS") #Read status, then pos then RESETDRIVE
+}
+#	||		||		||
+#	\/		\/		\/
+record(ao,"$(SYSTEM):GET_POS") {
+  field(DESC, "Get position")
+  field(EGU,  "$(egu)")
+  field(PREC, "$(prec)")
+#  field(FLNK, "$(SYSTEM):RESETDRIVE") #Read status, then pos then RESETDRIVE
+}
+#	||
+#	\/
+record(ao,"$(SYSTEM):POS_ERROR") {	#if error 129 then sensor not connected otherwise will be channel number (0..n-1)
+  field(DESC, "error number")		#capture/store error number here - used to draw red/green boxes in medm
+}
+
+#Find home in backwards rdirn and zero
+record(ao, "$(SYSTEM):FRM_BACK"){
+  field(DESC, "find ref mark - backwards")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+#  field(OUT,  "@$(motor) find_ref_backn($(chan),$(BSYSTEM),$(chanp1)) $(terminal)") 
+  field(OUT,  "@$(motor) find_ref_backn($(chan),$(SYSTEM),$(chanp1)) $(terminal)") 
+}
+
+#Find home in backwards rdirn and zero
+record(ao, "$(SYSTEM):FRM_FORW"){
+  field(DESC, "find ref mark - forwards")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+#  field(OUT,  "@$(motor) find_ref_forwn($(chan),$(BSYSTEM),$(chanp1)) $(terminal)") 
+  field(OUT,  "@$(motor) find_ref_forwn($(chan),$(SYSTEM),$(chanp1)) $(terminal)") 
+}
+
+record(ai,"$(SYSTEM):GET_HOMED") { #0=unknown pos;1=known
+  field(DESC, "has it been homed?")
+  field(DTYP, "stream")
+  field(INP,  "@$(motor) get_gppkn($(chan)) $(terminal)") 
+  field(EGU,  "true/false")
+  field(SCAN, "10 second")
+}
+
+record(calcout,"$(SYSTEM):#DMOV") { #0=moving;1=done
+  field(DESC, "done moving?")
+  field(PREC, "0")
+  field(INPA,  "$(BSYSTEM):NUM_CHANS") 
+  field(INPB,  "$(SYSTEM):STATUS CP") 
+  field(CALC,  "B=0|B=3|B=8") 
+  field(OUT,   "$(SYSTEM):DMOV PP") 
+}
+
+record(bi, "$(SYSTEM):DMOV"){  # Direction (0-Positive, 1-negative)
+  field(DESC, "done moving?")
+  field(DTYP, "Soft Channel")
+  field(INP,  "$(SYSTEM):#DMOV") 
+  field(ZNAM, "Moving")
+  field(ZSV,  "MINOR")
+  field(ONAM, "Done")
+  field(OSV,  "NO_ALARM")
+}
+
+
+
+
+
+
+
+#----------------------------------------------------------------------------
+# Absolute movement - S T A R T S    H E R E  - ------
+
+#Call "DRIVE" or "TWF" or "TWR" to start a movement
+
+record(ao, "$(SYSTEM):SET_ABSPOS"){
+  field(DESC, "Set absolute pos")
+#  field(FLNK, "$(SYSTEM):SET_$(type)_ABSPOS")  #$(type) = POS , ANG or NONE depending on encoder type
+  field(FLNK, "$(SYSTEM):SET_FANOUT_ABSPOS")  #$(type) =1,2,3 
+}
+
+record(fanout, "$(SYSTEM):SET_FANOUT_ABSPOS"){  #choose the correct record dependent on type of motor attached
+  field(DESC, "Select motor type")
+  field(SCAN, "Passive")
+  field(SELM, "Specified") 
+  field(SELL, "$(SYSTEM):STAGE_TYPE")
+  field(LNK1, "$(SYSTEM):SET_POS_ABSPOS") #$(SYSTEM):STAGE_TYPE =1
+  field(LNK2, "$(SYSTEM):SET_ANG_ABSPOS") #$(SYSTEM):STAGE_TYPE =2
+  field(LNK3, "$(SYSTEM):SET_NONE_ABSPOS") #$(SYSTEM):STAGE_TYPE=3
+}
+
+
+#	||
+#	\/
+record(calcout, "$(SYSTEM):SET_POS_ABSPOS") {  ########### Jump here for linear encoder    
+  field(DESC,  "Reset linear pos")
+  field(INPA,  "$(SYSTEM):SET_ABSPOS") 	 			
+  field(CALC,  "A") 		
+  field(OUT,   "$(SYSTEM):SET_LIN_ABSPOS PP")
+}
+#	||
+#	\/
+record(ao, "$(SYSTEM):SET_LIN_ABSPOS"){	#set position to a linear stage
+  field(DESC, "Set absolute pos")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+#  field(OUT,  "@$(motor) set_posabsn($(chan),$(BSYSTEM),$(chanp1)) $(terminal)") #cfg/file command port
+  field(OUT,  "@$(motor) set_posabsn($(chan),$(SYSTEM),$(chanp1)) $(terminal)") #cfg/file command port
+  field(LINR, "LINEAR") #SLOPE
+  field(ESLO, "$(slope)")
+  field(EOFF, "0")
+  field(EGU,  "nm")
+  field(PREC, "15")
+}
+#	O R		||
+#			\/
+record(calcout, "$(SYSTEM):SET_ANG_ABSPOS") {   ############# Jump here for rotational encoder
+  field(DESC,  "Reset rotational pos")
+  field(INPA,  "$(SYSTEM):SET_ABSPOS") 		#actual position now
+  field(INPB,  "$(uperrot)") 			#units per rev    			
+  field(CALC,  "FLOOR(A/B)")	 		#calculate number of turns
+  field(FLNK,  "$(SYSTEM):SET_ANG_ABSPOS2")
+}
+#			||
+#			\/
+record(calcout, "$(SYSTEM):SET_ANG_ABSPOS2") {        #Set position to rotational stage
+  field(DESC,  "Reset rotational pos")
+  field(INPA,  "$(SYSTEM):SET_ABSPOS") 		#actual position now
+  field(INPB,  "$(uperrot)") 			#units per rev
+  field(INPC,  "$(SYSTEM):SET_ANG_ABSPOS")   			
+  field(CALC,  "(A-C*B)")	 		#0
+  field(OUT,  "$(SYSTEM):SET_ANGULAR_ABSPOS PP")
+}
+#			||
+#			\/
+record(ao, "$(SYSTEM):SET_ANGULAR_ABSPOS"){	#set position to a angular stage
+  field(DESC, "Set angular pos")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) set_angabsn($(chan),$(BSYSTEM),$(chanp1)) $(terminal)") #cfg/file command port
+  field(LINR, "LINEAR")#SLOPE
+
+  field(ESLO, "$(slope)")
+  field(EOFF, "0")
+  field(EGU,  "nm")
+  field(PREC, "15")
+}
+#		O R			||
+#					\/
+record(calcout, "$(SYSTEM):SET_NONE_ABSPOS") {   ############# Jump here for no encoder encoder
+  field(DESC,  "Non sensor move")
+  field(INPA,  "$(SYSTEM):LAST_SET") 		#Last set position  -  counts
+  field(INPB,  "$(SYSTEM):SET_ABSPOS") 	  	#required pos	- counts	
+  field(CALC,  "FLOOR(B-A)")	 		#steps to move
+  field(OUT,   "$(SYSTEM):MOVE_STEPS PP")	#out to make motor move
+  field(FLNK,  "$(SYSTEM):SET_LAST_SET")
+}
+#					||
+#					\/
+record(calcout, "$(SYSTEM):SET_LAST_SET") { 	#  store new last position
+  field(DESC,  "Hold the last position")
+  field(INPA,  "$(SYSTEM):LAST_SET") 		#Last set position  -  counts
+  field(INPB,  "$(SYSTEM):SET_ABSPOS") 	  	#required pos	- counts	
+  field(CALC,  "FLOOR(B)")	 		#steps to move
+  field(OUT,   "$(SYSTEM):LAST_SET PP")		#save value
+}
+#					||
+#					\/
+record(ao, "$(SYSTEM):MOVE_STEPS"){		#move desired number of steps
+  field(DESC, "move number of steps")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+#  field(OUT,  "@$(motor) move_stepsn($(chan),$(BSYSTEM),$(chanp1)) $(terminal)") #cfg/file command port
+  field(OUT,  "@$(motor) move_stepsn($(chan),$(SYSTEM),$(chanp1)) $(terminal)") #cfg/file command port
+  field(EGU,  "steps")
+  field(PREC, "0")
+}
+#					||
+#					\/
+record(ao, "$(SYSTEM):LAST_SET") { 	#  store new last position
+  field(DESC,  "Hold the last position")
+}
+
+#----------------------------------------------------------------------------
+
+
+#------- V A R I A B L E S -------------
+
+record(ao, "$(SYSTEM):HLM"){			# High limit
+  field(DESC, "High Limit")
+  field(SCAN, "Passive")
+  field(VAL,  "$(hlm)")
+  field(PREC,  "$(prec)")
+}
+
+record(ao, "$(SYSTEM):LLM"){			# Low limit
+  field(DESC, "High Limit")
+  field(SCAN, "Passive")
+  field(VAL,  "$(llm)")
+  field(PREC,  "$(prec)")
+}
+
+record(ao, "$(SYSTEM):TWV"){			# Tweak value (rel move)
+  field(DESC, "High Limit")
+  field(SCAN, "Passive")
+  field(VAL,  "10")
+  field(PREC,  "$(prec)")
+
+}
+
+record(ao, "$(SYSTEM):HOLD"){			# Time to hold last position - in ms
+  field(DESC, "High Limit")			#if set to 60000 then will hold for every
+  field(SCAN, "Passive")			#60000 will mean closed loop is always active and may
+  field(VAL,  "$(hold)") 			#cause vibrations
+  field(EGU,   "ms")				#Recomend to leave ~1000 and put sensor on continuous
+}
+
+record(ao, "$(SYSTEM):AMPLITUDE"){		# Voltage amplitude for openloop movement
+  field(DESC, "High Limit")			# 0 to 4095 (0 to 100V)
+  field(SCAN, "Passive")			#
+  field(VAL,  "$(vamp)") 			#
+  field(EGU,   "vamp")				#
+}
+
+
+#--------- C O N T R O L S -------
+
+record(calcout,"$(SYSTEM):MOTRBV") {          	# POSITION - read position to here
+  field(DESC, "Read Back val")
+  field(SCAN, ".1 second")
+  field(INPA,  "$(SYSTEM):GET_POS") 
+  field(CALC,  "A") 
+  field(PREC,  "$(prec)")
+  field(ADEL,  "$(adel)")
+}
+
+record(ao, "$(SYSTEM):DRIVE"){			#ABS Pos - hold the variable: this is called when you request a new position
+  field(DESC, "Move")				#It is also overwritten with a NPP from RESETDRIVE so that it is upto date, but the motor doesn't move
+  field(SCAN, "Passive")
+  field(FLNK, "$(SYSTEM):DRIVECALC") 
+  field(PREC, "$(prec)")
+  field(EGU,  "$(egu)") 
+}
+#	||
+#	\/
+record(calcout,"$(SYSTEM):DRIVECALC") {         
+  field(DESC, "Move")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):DRIVE") 
+  field(INPB,  "$(SYSTEM):HLM") 
+  field(INPC,  "$(SYSTEM):LLM") 
+  field(CALC,  "A>B? B:A<C? C:A")	      	#Within limits? Impose max/min
+  field(OUT,   "$(SYSTEM):SET_ABSPOS PP")
+}
+
+record(calcout,"$(SYSTEM):TWF") {         #Tweak forward (using abs move not rel move as easier to implement limits)
+  field(DESC, "Tweak forward")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):DRIVE") 
+  field(INPB,  "$(SYSTEM):TWV") 
+  field(CALC,  "A+B")	      	
+  field(OUT,   "$(SYSTEM):DRIVE PP")
+}
+
+record(calcout,"$(SYSTEM):TWR") {         #Tweak forward (using abs move not rel move as easier to implement limits)
+  field(DESC, "Tweak backwards")
+  field(SCAN, "Passive")
+  field(INPA,  "$(SYSTEM):DRIVE") 
+  field(INPB,  "$(SYSTEM):TWV") 
+  field(CALC,  "A-B")	      	
+  field(OUT,   "$(SYSTEM):DRIVE PP")
+}
+
+
+
+#Set DRIVE back to actual rbv position after 2 seconds if motor not moving 
+#This is checked directly after STATUS and GETPOS
+record(calcout, "$(SYSTEM):RESETDRIVE") {        #Set DRIVE back to actual rbv position after 2 seconds if motor not moving 
+  field(DESC,  "Reset DRIVE field")
+  field(INPA,  "$(SYSTEM):GET_POS") 		#actual position now
+  field(INPB,  "0.0001") 			#allowable discrepency
+  field(INPC,  "$(SYSTEM):DRIVE") 		#required pos     			
+  field(CALC,  "ABS(A-C)<B? 0:1") 		#0=OK  1=too far out
+  field(FLNK,  "$(SYSTEM):RESETDRIVE1")
+}
+#	||
+#	\/
+record(calcout, "$(SYSTEM):RESETDRIVE1") {        #Set DRIVE back to actual rbv position after 2 seconds if motor not moving 
+  field(DESC,  "Reset DRIVE field")
+  field(INPA,  "$(SYSTEM):GET_POS") 		#actual position now
+  field(INPB,  "$(SYSTEM):STATUS") 		#0=stopped 3=Holding - if in either of these states then Drive should = GET_POS
+  field(INPC,  "$(SYSTEM):DRIVE") 		#required pos
+  field(INPD,  "$(SYSTEM):RESETDRIVE")		#Error: 0=OK  1=too far out
+  field(DOPT,  "Use OCAL")
+  field(OCAL,  "A")	      			
+  field(CALC,  "(((B=0)||(B=3))&&(D=1))? 0:1") 		#B=0 or 3 then enable move
+  field(OOPT,  "When Zero")
+  field(OUT,   "$(SYSTEM):DRIVE NPP")		#Use NPP so that we don't actually make the stage move, but the value is updated so that it is ready for a relatie move!
+}
+
+
+#-------- DIRECTION -------------
+record(bo, "$(SYSTEM):DIR"){  # Direction (0-Positive, 1-negative)
+  field(DESC, "Set direction")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@$(motor) set_dirn($(chan),$(BSYSTEM)) $(terminal)") 
+  field(VAL,  "$(dir)")
+  field(ZNAM, "Pos")
+  field(ONAM, "Neg")
+  field(FLNK, "$(SYSTEM):GET_DIR")
+}
+
+record(bi, "$(SYSTEM):GET_DIR"){  # Direction (0-Positive, 1-negative)
+  field(DESC, "Get direction")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(INP,  "@$(motor) get_dirn($(chan),$(BSYSTEM)) $(terminal)") 
+  field(VAL,  "$(dir)")
+  field(ZNAM, "Pos")
+  field(ONAM, "Neg")
+}
+
+record(stringout, "$(SYSTEM):REPLY") {
+  field(DESC, "Reply ")
+}
+
+
+record(bo, "$(SYSTEM):ENABLE-REHOLD") {
+  field(SCAN, "Passive")
+  field(DTYP, "Soft Channel")
+  field(VAL,  "1")
+  field(PINI, "YES")
+  field(ZNAM, "Disable")
+  field(ONAM, "Enable")
+}
+
+record(calcout, "$(SYSTEM):REHOLD") {
+  field(INPA,  "$(SYSTEM):STATUS CP")
+  field(INPB,  "$(SYSTEM):REHOLD.LA")
+  field(INPC,  "$(SYSTEM):ENABLE-REHOLD")
+  field(INPD,  "$(SYSTEM):REHOLD.MLST")
+
+  field(CALC,  "C&(((A=0)&(B=3))|((A=0)&(D=1)))")
+  field(OOPT,  "When Non-zero")
+
+  field(DOPT,  "Use OCAL")
+  field(OCAL,  "1")
+
+  field(OUT,   "$(SYSTEM):SET_FANOUT_ABSPOS.PROC")
+}

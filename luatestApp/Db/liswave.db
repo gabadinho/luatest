@@ -1,0 +1,7 @@
+record(waveform,"$(P)") {
+  field(DTYP,"lua")
+  field(DESC,"LIS WAVEFORM")
+  field(INP,"$(I)")
+  field(NELM,"$(N)")
+  field(FTVL,"$(T)")
+}

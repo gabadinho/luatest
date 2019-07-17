@@ -1,0 +1,122 @@
+record(luasub,"$(RECORD)-HOMELUA") {
+  field(DTYP,"lua")
+  field(DESC,"Homing Routine")
+  field(INP,"@luamothome.lua")
+
+  field (ICOD,"mothome_init")
+  field (PCOD,"mothome_proc")
+  field (DRVO,"ON VALID")
+
+  field (INPA, "$(DMOV-CH)")
+  field (FTA, "SHORT")
+  field (NOA, "1")
+
+  field (INPB, "$(GOTO-VAL)")
+  field (FTB, "DOUBLE")
+  field (NOB, "1")
+
+  field (OUTA, "$(RECORD)-HOMESTATE PP")
+  field (FTVA, "SHORT")
+  field (NOVA, "1")
+
+  field (OUTB, "$(RECORD)-HOMEPREP.A PP")
+  field (FTVB, "SHORT")
+  field (NOVB, "1")
+
+  field (OUTC, "$(GOTO-CH) PP")
+  field (FTVC, "DOUBLE")
+  field (NOVC, "1")
+
+  field (OUTD, "$(HOME-CH)")
+  field (FTVD, "SHORT")
+  field (NOVD, "1")
+
+  field (OUTE, "$(RECORD)-HOMELUA.SCAN")
+  field (FTVE, "SHORT")
+  field (NOVE, "1")
+}
+
+record (mbbi,"$(RECORD)-HOMESTATE") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Homing State")
+
+  field (ZRST,"Unknown")
+  field (ZRSV,"MINOR")
+
+  field (ONST,"Success")
+  field (ONSV,"NO_ALARM")
+
+  field (TWST,"Failure")
+  field (TWSV,"MAJOR")
+
+  field (THST,"Moving")
+  field (THSV,"MINOR")
+
+  field (FRST,"Homing")
+  field (FRSV,"MINOR")
+} 
+
+
+
+record (calc,"$(RECORD)-ISHOMING") {
+  field (DESC,"Is It homing")
+  field (INPA,"$(RECORD)-HOMELUA.SCAN CP")
+  field (CALC,"A#0")
+}
+
+record (bo,"$(RECORD)-HOMESTART") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Start Homing")
+  field (OUT, "$(RECORD)-#HOMESTART.A PP")
+  field (HIGH,"0.2")
+  field (SDIS,"$(RECORD)-ISHOMING")
+}
+
+record (calcout,"$(RECORD)-#HOMESTART") {
+  field (DESC,"Start Homing")
+  field (INPB,"8") # .5 second
+  field (CALC,"A")
+  field (OOPT,"When Non-zero")
+  field (DOPT,"Use OCAL")
+  field (OCAL,"B")
+  field (OUT, "$(RECORD)-HOMELUA.SCAN PP")
+}
+
+
+
+record (calc,"$(RECORD)-HOMEPREP") {
+  field (DESC,"Prepare or Restore")
+  field (CALC,"A?15:48")
+  field (FLNK,"$(RECORD)-#HOMEPREP")  
+}
+
+record(seq,"$(RECORD)-#HOMEPREP") {
+  field (SELM,"Mask")
+  field (SELL,"$(RECORD)-HOMEPREP")
+
+  field (DOL1,"$(LLM-CH)")
+  field (LNK1,"$(RECORD)-HOMELLM")
+  field (DOL2,"$(HLM-CH)")
+  field (LNK2,"$(RECORD)-HOMEHLM")
+  field (DOL3,"$(LLM-VAL)")
+  field (LNK3,"$(LLM-CH) PP")
+  field (DOL4,"$(HLM-VAL)")
+  field (LNK4,"$(HLM-CH) PP")
+
+  field (DOL5,"$(RECORD)-HOMELLM")
+  field (LNK5,"$(LLM-CH) PP")
+  field (DOL6,"$(RECORD)-HOMEHLM")
+  field (LNK6,"$(HLM-CH) PP")
+}
+
+record (ai,"$(RECORD)-HOMELLM") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Saved LLM")
+  field (PREC,"8")
+}
+
+record (ai,"$(RECORD)-HOMEHLM") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Saved HLM")
+  field (PREC,"8")
+}

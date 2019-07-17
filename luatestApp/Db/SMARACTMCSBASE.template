@@ -1,0 +1,174 @@
+#BASE TEMPLATE FOR MCS Smaract motor controller use with V1 & V2
+#
+# Contains the "base" commands, i.e not specific to a motor channel
+#
+#----------------------------------------------------------------------------------
+
+record(stringout, "$(SYSTEM):NAME"){
+  field(DESC, "Name")
+  field(VAL,  "$(name)") 
+}
+
+
+#------ S E T U P   T H E   C O N T R O L L E R  --------------
+
+record(seq,"$(SYSTEM):INIT_AUTO"){
+
+        field(DOL1,"1")
+        field(DLY1,"0.9")
+        field(LNK1,"$(SYSTEM):SET_SYNC.PROC")   #set synchrous mode
+
+        field(DOL2,"1")
+        field(DLY2,"1.3")
+        field(LNK2,"$(SYSTEM):FIRMWARE.PROC")   #Read the firmware versiom
+
+        field(DOL3,"1")
+        field(DLY3,"1.6")
+        field(LNK3,"$(SYSTEM):NUM_CHANS.PROC")  #Read number channels
+
+        field(DOL4,"1")
+        field(DLY4,"1.8")
+        field(LNK4,"$(SYSTEM):SENSOR_MODE.PROC")#Read sensor mode
+
+        field(DOL5,"1")
+        field(DLY5,"1")
+        field(LNK5,"$(SYSTEM):ID.PROC")         #Read ID
+
+        field(DOL6,"1")
+        field(DLY6,"2")
+        field(LNK6,"$(SYSTEM):SET_HAND.PROC")   #set hand controller mode
+
+        field(PINI,"YES")
+	field(SCAN, "Passive")
+
+}
+#------------ S E T / G E T   B A S I C  C O N T R O L L E R   S E T T I N G S ---------------------------------
+
+record(stringin, "$(SYSTEM):ID"){
+  field(DESC, "Controller ID")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(INP,  "@smaract.cfg get_id $(terminal)") #cfg/file command port
+}
+
+record(stringin,"$(SYSTEM):RESET") {	#soft reset 
+  field(DESC, "Soft reset")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(INP,  "@smaract.cfg softreset  $(terminal)") 
+}
+
+record(stringin, "$(SYSTEM):FIRMWARE"){		
+  field(DESC, "Get Firmware")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(INP,  "@smaract.cfg firmware $(terminal)") #cfg/file command port
+}
+
+record(ai,"$(SYSTEM):NUM_CHANS") {  #get number of channels 3, 6 or 9 / used for keep alive
+  field(DESC, "num channels")
+  field(DTYP, "stream")
+  field(INP,  "@smaract.cfg num_chans $(terminal)") 
+  field(SCAN, "5 second")
+}
+
+
+record(mbbo, "$(SYSTEM):SET_SENSOR_MODE"){      #NB there is 1 sensor on each channel - this setting applies to all.
+  field(DTYP, "stream")
+  field(SCAN, "Passive")
+  field(OUT,  "@smaract.cfg set_smode($(SYSTEM)) $(terminal)")
+  field(PINI, "NO")
+  field(NOBT, "3")
+  field(ZRVL, "0")
+  field(ONVL, "1")
+  field(TWVL, "2")
+  field(ZRST, "Sensor OFF")
+  field(ONST, "Sensor ON") 
+  field(TWST, "Sensor Auto")
+  field(FLNK, "$(SYSTEM):SENSOR_MODE")
+}
+#	||
+#	\/
+record(mbbi, "$(SYSTEM):SENSOR_MODE"){
+  field(DTYP, "stream")
+  field(SCAN, "Passive")
+  field(INP,  "@smaract.cfg get_smode $(terminal)")
+  field(PINI, "NO")
+  field(NOBT, "3")
+  field(ZRVL, "0")
+  field(ONVL, "1")
+  field(TWVL, "2")
+  field(ZRST, "Sensor OFF")
+  field(ONST, "Sensor ON") 
+  field(TWST, "Sensor Auto")
+}
+
+#Hand controller activation
+
+record(mbbo, "$(SYSTEM):SET_HAND"){
+  field(DTYP, "stream")
+  field(SCAN, "Passive")
+  field(OUT,  "@smaract.cfg set_hand($(SYSTEM)) $(terminal)")
+  field(PINI, "NO")
+  field(NOBT, "3")
+  field(ZRVL, "0")
+  field(ONVL, "1")
+  field(TWVL, "2")
+  field(ZRST, "Disabled")
+  field(ONST, "Enabled") 
+  field(TWST, "Disabled, pos displayed")
+  field(VAL, "1")
+}
+
+
+#enable strings to be sent
+
+record(stringout, "$(SYSTEM):SENDSTRING"){
+  field(DESC, "send a question")		      #the response will be stored here
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@smaract.cfg sendstring  $(terminal)") #cfg/file command port
+}
+
+
+
+record(ao,"$(SYSTEM):ABORT") { #stop all motion immediately
+  field(DESC, "Stop immediately")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@smaract.cfg abortmotion  $(terminal)") 
+}
+
+#-------------------------------------------
+#Set Baudrate to 115200 - takes effect after power off or reset.
+
+record(ao,"$(SYSTEM):SET_BAUD115200") { #
+  field(DESC, "Set BR 115200")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@smaract.cfg set_br115200($(SYSTEM))  $(terminal)") 
+}
+
+record(ao,"$(SYSTEM):SET_BAUD57600") { #
+  field(DESC, "Set BR 115200")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@smaract.cfg set_br57600($(SYSTEM))  $(terminal)") 
+}
+record(ao,"$(SYSTEM):SET_BAUD9600") { #
+  field(DESC, "Set BR 115200")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@smaract.cfg set_br9600($(SYSTEM))  $(terminal)") 
+}
+record(ao,"$(SYSTEM):SET_SYNC") { #set synchrous mode
+  field(DESC, "Set sync mode")
+  field(SCAN, "Passive")
+  field(DTYP, "stream")
+  field(OUT,  "@smaract.cfg set_sync($(SYSTEM))  $(terminal)") 
+}
+
+#holder for all replies which do not contain useful data
+record(stringout, "$(SYSTEM):REPLY") {
+  field(DESC, "Reply ")
+}

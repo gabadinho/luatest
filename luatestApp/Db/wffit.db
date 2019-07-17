@@ -1,0 +1,49 @@
+record (luasub,"$(RECORD)"){
+  field (DTYP,"lua")
+  field (DESC,"Fit center and peak")
+  field (INP,"@wffit.lua")
+
+  field (ICOD,"wffit_init")
+  field (PCOD,"wffit_proc")
+
+  field (INPA,"$(X-AXIS)")
+  field (FTA, "DOUBLE")
+  field (NOA, "$(NOX)")
+
+  field (INPB,"$(Y-AXIS)")
+  field (FTB, "DOUBLE")
+  field (NOB, "$(NOY)")
+
+  field (INPC,"$(NO)")
+  field (FTC, "LONG")
+  field (NOC, "1")
+
+  field (OUTA,"$(RECORD)-CENTER PP")
+  field (FTVA,"DOUBLE")
+  field (NOVA,"1")
+
+  field (OUTB,"$(RECORD)-PEAK PP")
+  field (FTVB,"DOUBLE")
+  field (NOVB,"1")
+
+  field (OUTC,"$(RECORD)-FITRES PP")
+  field (FTVC,"LONG")
+  field (NOVC,"1")
+}
+
+record (ao,"$(RECORD)-CENTER") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Fit center")
+  field (PREC,"5")
+}
+
+record (ao,"$(RECORD)-PEAK") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Fit peak")
+  field (PREC,"5")
+}
+
+record (longout,"$(RECORD)-FITRES") {
+  field (DTYP,"Soft Channel")
+  field (DESC,"Fit result")
+}

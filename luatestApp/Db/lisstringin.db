@@ -1,0 +1,6 @@
+record(stringin,"$(P)") {
+  field(DTYP,"lua")
+  field(DESC,"LIS STRINGIN")
+  field(INP,"$(I)")
+#  field(SCAN,"I/O Intr")
+}
