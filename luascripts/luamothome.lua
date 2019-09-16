@@ -3,32 +3,6 @@
 function mothome_init(rec)
 end
 
-function mothome_proc3(rec)
-  rec.retrieve_field("SDIS")
-  lnka=rec.retrieve_field("INPA")
-  inp=rec.retrieve_field("INP")
-  -- print("FROM LUA INPA IS "..lnka.LINK)
-  print("FROM LUA INPA IS "..lnka[luaiocsup.DBLINK.LINK])
-  print("FROM LUA INPA MASK IS "..lnka[luaiocsup.DBLINK.LINKMASK])
-  print("FROM LUA INPA STRING MASK IS _"..luaiocsup.MSK.to_string(lnka[luaiocsup.DBLINK.LINKMASK]).."_")
-
-  print("DBF[0] IS "..luaiocsup.DBF[0])
-  print("DBF[1] IS "..luaiocsup.DBF[1])
-  print("DBF[15] IS "..luaiocsup.DBF[15])
-
-  print("LNK[0] IS "..luaiocsup.LNK[0])
-  print("LNK[1] IS "..luaiocsup.LNK[1])
-  print("LNK[10] IS "..luaiocsup.LNK[10])
-  print("LNK[15] IS "..luaiocsup.LNK[15])
-
-  print("MASK MSI IS "..luaiocsup.MSK.MSI)
-
-
-  rec.update_field("INPC","SMARACT1:MOT1:DMOV")
-
-  return 0
-end
-
 function mothome_proc(rec)
   luaiocsup.ioclog_info("Preparing homing")
 
@@ -84,3 +58,4 @@ function mothome_proc(rec)
 
   return 0
 end
+
