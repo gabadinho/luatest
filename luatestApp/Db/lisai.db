@@ -1,6 +1,0 @@
-record(ai,"$(P)") {
-  field(DTYP,"lua")
-  field(DESC,"LIS AI")
-  field(INP,"$(I)")
-  field(PREC,"2")
-}
