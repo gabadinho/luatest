@@ -26,14 +26,15 @@
 #MODULES = /path/to/modules
 #MYMODULE = $(MODULES)/my-module
 
-ASYN=/home/gabadinho/SoftDev/EPICS/support/asyn/asyn4-33
-LUAIOCSUP = /home/gabadinho/SoftDev/luaiocsup
+#ASYN=/home/gabadinho/SWDev/EPICS/support/asyn/asyn4-33
+ASYN=/home/gabadinho/SWDev/EPICS/modules/synApps_6_1/support/asyn-R4-36
+LUAIOCSUP = /home/gabadinho/SWDev/luaiocsup
 
 # If using the sequencer, point SNCSEQ at its top directory:
 #SNCSEQ = $(MODULES)/seq-ver
 
 # EPICS_BASE should appear last so earlier modules can override stuff:
-EPICS_BASE = /home/gabadinho/SoftDev/EPICS/base
+EPICS_BASE = /home/gabadinho/SWDev/EPICS/base
 
 # Set RULES here if you want to use build rules from somewhere
 # other than EPICS_BASE:
